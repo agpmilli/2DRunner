@@ -26,7 +26,7 @@ const blockSize = 20;
 
 const MAX_JUMPS = 1;
 
-var blocks = [{x:0, y:canvasHeight-blockSize, length: 150}];
+var blocks = [{x:0, y:canvasHeight-blockSize, length: 31}];
 Array.prototype.push.apply(blocks, generateMap(-200, 400));
 
 io.sockets.on('connection', function (socket) {
