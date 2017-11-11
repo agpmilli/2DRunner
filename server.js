@@ -26,7 +26,7 @@ const blockSize = 20;
 
 const MAX_JUMPS = 1;
 
-var blocks = [Block(300, 250), Block(329, 250), Block(358, 250)];
+var blocks = [{x:300, y:250, size:3}];
 
 io.sockets.on('connection', function (socket) {
     console.log('[*] info: new connection ' + socket.id);
@@ -72,7 +72,7 @@ io.sockets.on('connection', function (socket) {
         
         myBird.jumpCount = isDown(myBird) ? 0 : myBird.jumpCount;
         
-        myBird.dead=myBird.x<=0;         
+        myBird.dead=myBird.y>=canvasHeight;         
 
     };
     blocks.push({x:0, y:canvasHeight, length: 20});
@@ -91,7 +91,7 @@ function ground(bird){
             return block.y - birdHeight;
         }
     }
-    return canvasHeight-birdHeight;
+    return canvasHeight;
 }
 
 setInterval(function(){io.sockets.emit('positionUpdate', playerLocations); }, 10);
