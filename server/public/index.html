@@ -1,59 +1,29 @@
+<!--DOCTYPE html-->
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="description" content="Let's Draw is a drawing webapp, where you can draw with other people on the internet on the same canvas.">
-    <meta name="keywords" content="draw canvas let's drawing colors color tristan trouwen">
-    <meta name="author" content="Tristan Trouwen">
-
+	<title>Flappy Bird</title>
+	<style type="text/css">
+		canvas{
+			border: 1px solid gray;
+		}
+		body{
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		#fork_me{
+			position: fixed;
+			right: 0;
+			top: 0;
+		}
+	</style>
     <script language="javascript" type="text/javascript" src="libraries/p5.js"></script>
     <script language="javascript" type="text/javascript" src="libraries/p5.dom.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
-
-    <script language="javascript" type="text/javascript" src="sketch.js"></script>
-    <link rel="stylesheet" href="style.css">
-
-    <title>Let's draw!</title>
+    <script language="javascript" type="text/javascript" src="js/sketch.js"></script>
 </head>
-
 <body>
-    <input type="checkbox" id="sidebartoggler" name="" value="">
-    <div class="page-wrap">
-      <div class="page-content" id="canvas">
-          <label for="sidebartoggler"><img src="menu.png" width="50" height="50"></label>
-
-
-      </div>
-      <div class="sidebar" id="options">
-          <h2>Let's draw!</h2>
-          <hr>
-          <h4>color</h4>
-          <div id="brush-color"><br></div>
-          <div class="sidebarel" id="colors">
-
-          </div>
-          <h4>thickness</h4>
-          <div class="siderbarel" id="thickness">
-
-          </div>
-          <hr>
-          <button onclick="saveCanvas()">Download drawing</button>
-          <hr>
-          <h3>What's this?</h3>
-          <p>Let's draw is a webapp where you can draw. While you are drawing others can also draw.</p>
-
-          <div class="footer">
-              <p><a href="http://tristantrouwen.com">made by Tristan Trouwen</a></p>
-          </div>
-
-      </div>
-    </div>
-
-<script>
-    function saveCanvas() {
-        var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-        window.location.href = image; // it will save locally
-    }
-</script>
-    
+	<h2>2D runner</h2>
 </body>
 </html>

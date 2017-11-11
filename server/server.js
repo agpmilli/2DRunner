@@ -14,12 +14,32 @@ app.get('/', function (req, res) {
 
 console.log(' * Running on http://' + config.server + ':' + config.port.toString());
 
+var playerLocations = { };
+
 io.sockets.on('connection', function (socket) {
     console.log('[*] info: new connection ' + socket.id);
-
-    socket.on('mouse', MouseReceive);
     
-    function MouseReceive(data) {
-        socket.broadcast.emit('mouse', data);
+    socket.emit("yourId", socket.id);
+    
+    socket.on('disconnect', function() {
+        console.log('[*] info: disconnected ' + socket.id);
+        delete playerLocations[socket.id];
+    });
+    
+    playerLocations[socket.id]={x:100, y:300, dead:false};
+    
+    socket.on('positionUpdate', positionUpdate);
+    
+    function positionUpdate(data) {
+        myBird = playerLocations[socket.id]
+        myBird.x = myBird.x + data.velocityX;
+        myBird.y = myBird.y + data.velocityY;
+        if(myBird.x <= 0){
+           myBird.dead=true;          
+        } else {
+           myBird.dead=false; 
+        }
     };
 });
+
+setInterval(function(){io.sockets.emit('positionUpdate', playerLocations); }, 5);
