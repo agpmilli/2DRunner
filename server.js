@@ -184,6 +184,7 @@ function restartGame(id){
     // restart
     if(alive < 2){
         totalShift = 0;
+        iter=0;
         blocks = [{x:0, y:canvasHeight-blockSize, length: 31}];
         Array.prototype.push.apply(blocks, generateMap(-canvasHeight, canvasHeight));
         Object.keys(playerLocations).forEach(function(key){
