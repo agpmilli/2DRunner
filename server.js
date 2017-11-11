@@ -21,10 +21,15 @@ var birdHeight=40;
 var canvasWidth=600;
 var canvasHeight=400;
 var topMargin = canvasHeight/5;
+var blocks = [];
+var totalShift=0;
+
+const blockSize = 20;
 
 const MAX_JUMPS = 1;
 
-var blocks = [Block(300, 250), Block(329, 250), Block(358, 250)];
+var blocks = [{x:0, y:canvasHeight-blockSize, length: 150}];
+Array.prototype.push.apply(blocks, generateMap(-canvasHeight, canvasHeight));
 
 io.sockets.on('connection', function (socket) {
     console.log('[*] info: new connection ' + socket.id);
@@ -37,15 +42,28 @@ io.sockets.on('connection', function (socket) {
         delete playerLocations[socket.id];
     });
     
-    playerLocations[socket.id]={x:100, y:300, dead:false, jumpCount:0, yVelocity: 0, xVelocity: 0, width:birdWidth, height:birdHeight};
+    playerLocations[socket.id] = {
+        x:100,
+        y:300,
+        dead:false,
+        jumpCount:0,
+        yVelocity: 0,
+        xVelocity: 0,
+        width:birdWidth,
+        height:birdHeight,
+        horizontalDirection: "R"
+    };
     
     socket.on('positionUpdate', positionUpdate);
     
     // called when a player updates its position
     function positionUpdate(data) {
-        myBird = playerLocations[socket.id]
+        var myBird = playerLocations[socket.id]
         myBird.x = myBird.x + data.velocityX;
         myBird.xVelocity = data.velocityX;
+
+        var direction = data.velocityX > 0 ? "R" : "L";
+        myBird.horizontalDirection = data.velocityX === 0 ? myBird.horizontalDirection : direction;
         
         if(data.velocityY==-10 && myBird.jumpCount < MAX_JUMPS){
             myBird.yVelocity = data.velocityY;
@@ -58,9 +76,10 @@ io.sockets.on('connection', function (socket) {
         
         myBird.jumpCount = isDown(myBird) ? 0 : myBird.jumpCount;
         
-        myBird.dead=myBird.x<=0;         
+        myBird.dead=myBird.y>=canvasHeight;         
 
     };
+    socket.emit('map', blocks);
 });
 
 function isDown(bird){
@@ -68,34 +87,40 @@ function isDown(bird){
 }
 
 function ground(bird){
+    var finalGround = canvasHeight;
     for(var i = 0; i < blocks.length; i++) {
         block = blocks[i];
-        if(bird.x + birdWidth / 2 >= block.x && bird.x <= (block.x + block.width) && (bird.y + birdHeight) <= block.y) {
-            return block.y - birdHeight;
+        if(bird.x + birdWidth >= block.x && bird.x + birdWidth / 2 <= (block.x + blockSize*block.length) && (bird.y + birdHeight) <= block.y) {
+            newGround = block.y - birdHeight;
+            if(newGround < finalGround) {
+                finalGround = newGround;
+            }
         }
     }
-    return canvasHeight-birdHeight;
+    return finalGround;
 }
 
 setInterval(function(){
     // shift map
     shiftMap();
+    if(totalShift>canvasHeight){
+        Array.prototype.push.apply(blocks, generateMap(-canvasHeight, 0));
+        totalShift=0;
+    }
     // send positions to players
-    io.sockets.emit('positionUpdate', playerLocations); 
+    io.sockets.emit('positionUpdate', playerLocations);
+    io.sockets.emit('map', blocks);
 
 }, 10);
 
-
-function Block(x, y) {
-	return {
-		width: 30,
-		height: 30,
-		x: x,
-		y: y,
-		draw : function(){
-			image(block_tile, this.x, this.y, this.width, this.height);
-		}
-	}
+function generateMap(yMin, yMax) {
+    newBlocks = []
+    for(var y = yMin; y <= yMax; y += blockSize * 2) {
+        length = randomInt(3, 10);
+        upperRightBound = canvasWidth - length * blockSize;
+        newBlocks.push({x:randomInt(0, upperRightBound), y: y, length: length});
+    }
+    return newBlocks;
 }
 
 // if one player if high enough on the map, it must be shifted down
@@ -114,7 +139,8 @@ function shiftMap() {
             playerLocations[id].yVelocity -= playerLocations[higherPlayer].yVelocity;
         });
         // move all blocks down
-        //blocks.map(block => block.y -= playerLocations[higherPlayer].yVelocity);
+        blocks.map(block => block.y -= playerLocations[higherPlayer].yVelocity);
+        totalShift-=playerLocations[higherPlayer].yVelocity;
     }
 }
 
@@ -131,3 +157,6 @@ function getHigherPlayerId() {
 }
 
 //TOOD: when a player is above, update substract its velocity from all other players velocities
+function randomInt(min, max) {
+    return Math.floor(Math.random()*(max-min+1)+min);
+}
