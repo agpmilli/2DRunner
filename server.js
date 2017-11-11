@@ -97,14 +97,15 @@ function ground(bird){
 setInterval(function(){io.sockets.emit('positionUpdate', playerLocations); }, 10);
 
 function generateMap(xMin, xMax) {
-    newBlock = []
+    newBlocks = []
     for(var x = xMin; x >= xMax; x += blockSize * 2) {
         length = randomInt(3, 10);
         upperRightBound = canvasWidth - length * blockSize;
-        newBlock.push({x:x, y: randomInt(0, upperRightBound), length: length});
+        newBlocks.push({x:x, y: randomInt(0, upperRightBound), length: length});
     }
     return newBlocks;
 }
+
 function randomInt(min, max) {
     return Math.floor(Math.random()*(max-min+1)+min);
 }
