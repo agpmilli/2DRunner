@@ -66,6 +66,7 @@ io.sockets.on('connection', function (socket) {
         var direction = data.velocityX > 0 ? "R" : "L";
         myBird.horizontalDirection = data.velocityX === 0 ? myBird.horizontalDirection : direction;
         
+        // update jump counts
         if(data.velocityY==-10 && myBird.jumpCount < MAX_JUMPS){
             myBird.yVelocity = data.velocityY;
             myBird.jumpCount++;
@@ -106,6 +107,7 @@ setInterval(function(){
     shiftMap();
     if(totalShift>canvasHeight){
         Array.prototype.push.apply(blocks, generateMap(-canvasHeight, 0));
+        blocks = blocks.filter(block => block.y < canvasHeight);
         totalShift=0;
     }
     // send positions to players
