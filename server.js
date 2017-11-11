@@ -23,12 +23,13 @@ var canvasHeight=800;
 var topMargin = canvasHeight/5;
 var blocks = [];
 var totalShift=0;
+var iter = 1;
 
 const blockSize = 20;
 
 const MAX_JUMPS = 1;
 
-var blocks = [{x:0, y:canvasHeight-blockSize, length: 31}];
+var blocks = [{x:0, y:canvasHeight-blockSize, length: 31, type: "grass"}];
 Array.prototype.push.apply(blocks, generateMap(-canvasHeight, canvasHeight));
 
 
@@ -52,7 +53,8 @@ io.sockets.on('connection', function (socket) {
         xVelocity: 0,
         width:birdWidth,
         height:birdHeight,
-        horizontalDirection: "R"
+        horizontalDirection: "R",
+        totalShift: totalShift
     };
     
     socket.on('positionUpdate', positionUpdate);
@@ -86,6 +88,7 @@ io.sockets.on('connection', function (socket) {
         
         myBird.dead=myBird.y>=canvasHeight;         
 
+        myBird.totalShift = totalShift;
     };
     socket.emit('map', blocks);
 });
@@ -111,10 +114,10 @@ function ground(bird){
 setInterval(function(){
     // shift map
     shiftMap();
-    if(totalShift>canvasHeight){
+    if(totalShift>canvasHeight * iter){
         Array.prototype.push.apply(blocks, generateMap(-canvasHeight, 0));
+        iter++;
         blocks = blocks.filter(block => block.y < canvasHeight);
-        totalShift=0;
     }
     // send positions to players
     io.sockets.emit('positionUpdate', playerLocations);
@@ -124,10 +127,11 @@ setInterval(function(){
 
 function generateMap(yMin, yMax) {
     newBlocks = []
-    for(var y = yMin; y <= yMax; y += blockSize * 3.5) {
+    var proportion = Math.min(1, iter/6);
+    for(var y = yMin; y <= yMax; y += blockSize * Math.max(2, 4* proportion)) {
         length = randomInt(3, 10);
         upperRightBound = canvasWidth - length * blockSize;
-        newBlocks.push({x:randomInt(0, upperRightBound), y: y, length: length});
+        newBlocks.push({x:randomInt(0, upperRightBound), y: y, length: length, type: Math.random() < proportion ? "snow" : "grass"});
     }
     return newBlocks;
 }
