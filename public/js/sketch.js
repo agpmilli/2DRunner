@@ -76,9 +76,12 @@ function preload(){
     our_bird_right = loadImage("images/our_bird_right.png")
     bird_left = loadImage("images/bird_left.png")
 	bird_right = loadImage("images/bird_right.png")
-    left_block_tile = loadImage("images/left_block.png")
-    middle_block_tile = loadImage("images/middle_block.png")
-    right_block_tile = loadImage("images/right_block.png")
+    left_block_grass_tile = loadImage("images/left_block_grass.png")
+    middle_block_grass_tile = loadImage("images/middle_block_grass.png")
+    right_block_grass_tile = loadImage("images/right_block_grass.png")
+    left_block_snow_tile = loadImage("images/left_block_snow.png")
+    middle_block_snow_tile = loadImage("images/middle_block_snow.png")
+    right_block_snow_tile = loadImage("images/right_block_snow.png")
 }
 
 function draw(){
@@ -106,7 +109,7 @@ function draw(){
         }
     }
     blocks.forEach(function(block) {
-        Block(block.x, block.y, block.length).draw();
+        Block(block.x, block.y, block.length, block.type).draw();
 	});
     
 	fill("#FFF");
@@ -116,21 +119,30 @@ function disconnect(){
     clearInterval(moving);
 }
 
-function Block(x, y, n) {
+function Block(x, y, n, type) {
 	return {
 		width: 20,
 		height: 20,
 		x: x,
 		y: y,
 		draw : function(){
+            if(type=="snow"){
+                var left=left_block_snow_tile;
+                var right=right_block_snow_tile;
+                var middle=middle_block_snow_tile;
+            } else {
+                var left=left_block_grass_tile;
+                var right=right_block_grass_tile;
+                var middle=middle_block_grass_tile;
+            }
             var posX = this.x;
-            image(left_block_tile, posX, this.y, this.width, this.height);
+            image(left, posX, this.y, this.width, this.height);
             posX+=this.width;
             for(var i = 1; i<n-2;i++){
-                image(middle_block_tile, posX, this.y, this.width, this.height);
+                image(middle, posX, this.y, this.width, this.height);
                 posX+=this.width;
             }
-            image(right_block_tile, posX, this.y, this.width, this.height);
+            image(right, posX, this.y, this.width, this.height);
 		}
 	}
 }
