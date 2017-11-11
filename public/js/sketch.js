@@ -1,4 +1,5 @@
-const SERVER_IP = "128.179.131.152";
+//const SERVER_IP = "128.179.131.152";
+const SERVER_IP = "128.179.153.148";
 const SERVER_PORT = 3000;
 
 
@@ -16,6 +17,8 @@ var xVelocity = 0;
 var yVelocity = 0;
 
 var blocks = [];
+
+var canvas;
 
 function drawBird(data, image_bird){
 	image(image_bird, data.x, data.y, data.width, data.height);
@@ -42,7 +45,7 @@ function move(){
 function setup() {
     socket = io.connect('http://' + SERVER_IP + ":" + SERVER_PORT);
     socket.on("canvas", function(data){
-        var canv = createCanvas(data.width, data.height);
+        canvas = createCanvas(data.width, data.height);
         background(255,255,255);
     });
     
@@ -51,6 +54,7 @@ function setup() {
     });
     socket.on('positionUpdate', update);
     socket.on('map', updateBlocks);
+    socket.on('restart', restartGame);
     moving = setInterval(move, 10);
 }
 
@@ -67,6 +71,10 @@ function keyTyped(){
     if(keyCode==32){
         yVelocity = -7;
         jumpCount += 1;
+    }
+    if(keyCode == 114){
+        console.log("restart");
+        socket.emit('restart', myId);
     }
 }
 
@@ -114,6 +122,11 @@ function draw(){
 
 function disconnect(){
     clearInterval(moving);
+}
+
+function restartGame(){
+    clearInterval(moving);
+    moving = setInterval(move, 10);
 }
 
 function Block(x, y, n) {

@@ -1,5 +1,5 @@
 module.exports = {
-    server: '128.179.131.152',
+    server: 'localhost',
     port: 3000,
     timeout: 10
 };
