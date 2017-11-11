@@ -2,7 +2,8 @@ const SERVER_IP = "localhost";
 const SERVER_PORT = 3000;
 
 
-var socket;
+var socket = null;
+var moving = null;
 
 var playerLocations = {};
 var myId = -1;
@@ -20,6 +21,24 @@ function drawBird(data, image_bird){
 	image(image_bird, data.x, data.y, data.width, data.height);
 }
 
+function move(){
+    xVelocity = 0;
+    if(keyIsDown(68)){
+        xVelocity = 3;
+    }
+    else if(keyIsDown(65)){
+        xVelocity = -3;
+    }
+
+    var data = {
+        velocityX: xVelocity,
+        velocityY: yVelocity
+    };
+
+    socket.emit('positionUpdate', data);
+    yVelocity = 0;
+}
+
 function setup() {
     
 
@@ -33,29 +52,11 @@ function setup() {
         myId = data;
     });
     socket.on('positionUpdate', update);
+    moving = setInterval(move, 10);
 }
 
 function update(data) {
     playerLocations = data;
-}
-
-
-function move(){
-    xVelocity = 0;
-    if(keyIsDown(68)){
-        xVelocity = 3;
-    }
-    else if(keyIsDown(65)){
-        xVelocity = -3;
-    }
-    
-    var data = {
-        velocityX: xVelocity,
-        velocityY: yVelocity
-    };
-    
-    socket.emit('positionUpdate', data);
-    yVelocity = 0;
 }
 
     
@@ -66,8 +67,6 @@ function keyTyped(){
         jumpCount += 1;
     }
 }
-
-var moving = setInterval(move, 10);
 
 //p5js functions
 function preload(){
