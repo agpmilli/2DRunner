@@ -20,7 +20,7 @@ function drawBird(data, image_bird){
 function setup() {
     
 
-    socket = io.connect('http://128.179.131.152:3000');
+    socket = io.connect('http://128.179.153.148:3000'); // ip raph
     socket.on("canvas", function(data){
         var canv = createCanvas(data.width, data.height);
         background(255,255,255);
@@ -77,7 +77,7 @@ function preload(){
 
 function draw(){
 	clear();
-	background(color(87, 217, 255));
+	background(color(10, 20, 30));
     for (var key in playerLocations){
         
         if(key == myId){
