@@ -1,5 +1,5 @@
-//const SERVER_IP = "128.179.131.152";
-const SERVER_IP = "128.179.153.148";
+const SERVER_IP = "128.179.131.152"; //Alain
+//const SERVER_IP = "128.179.153.148"; // Raph
 const SERVER_PORT = 3000;
 
 
