@@ -1,4 +1,4 @@
-const SERVER_IP = "128.179.131.152";
+const SERVER_IP = "128.179.147.23";
 const SERVER_PORT = 3000;
 
 
@@ -24,8 +24,10 @@ var gameWidth = 0;
 var gameHeight = 0;
 
 var totalShift = 0;
+var username = prompt("Username:")
 
 function drawBird(data, image_bird){
+    text(data.username, data.x, data.y - 40 / 3, 50, 200)
 	image(image_bird, data.x, data.y, data.width, data.height);
 }
 
@@ -49,6 +51,7 @@ function move(){
 
 function setup() {
     socket = io.connect('http://' + SERVER_IP + ":" + SERVER_PORT);
+
     socket.on("canvas", function(data){
         gameWidth = data.width;
         gameHeight = data.height;
@@ -58,6 +61,7 @@ function setup() {
     
     socket.on("yourId", function(data){
         myId = data;
+        socket.emit("username", {id : myId, username : username});
     });
     socket.on('positionUpdate', update);
     socket.on('map', updateBlocks);

@@ -45,6 +45,7 @@ io.sockets.on('connection', function (socket) {
     });
     
     playerLocations[socket.id] = {
+        username:"undefined",
         x:100,
         y:canvasHeight-2*birdHeight,
         dead:false,
@@ -56,6 +57,9 @@ io.sockets.on('connection', function (socket) {
         horizontalDirection: "R",
         totalShift: totalShift
     };
+    socket.on("username", function(data) {
+        playerLocations[data.id]['username'] = data.username;
+    });
     
     socket.on('positionUpdate', positionUpdate);
     
