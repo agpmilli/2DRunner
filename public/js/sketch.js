@@ -23,10 +23,10 @@ function drawBird(data, image_bird){
 
 function move(){
     xVelocity = 0;
-    if(keyIsDown(68)){
+    if(keyIsDown(68) || keyIsDown(RIGHT_ARROW)){
         xVelocity = 3;
     }
-    else if(keyIsDown(65)){
+    else if(keyIsDown(65) || keyIsDown(LEFT_ARROW)){
         xVelocity = -3;
     }
 
