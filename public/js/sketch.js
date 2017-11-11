@@ -1,4 +1,9 @@
-var socket;
+const SERVER_IP = "localhost";
+const SERVER_PORT = 3000;
+
+
+var socket = null;
+var moving = null;
 
 var playerLocations = {};
 var myId = -1;
@@ -6,40 +11,15 @@ var myId = -1;
 var jumpCount = 0;
 
 const sideMargin = 30;
-var score = 0;
 
 var xVelocity = 0;
 var yVelocity = 0;
 
-var blocks = [{x:300, y:250, size:3}];
+var blocks = [{x:50, y:250, size:15}];
 
 function drawBird(data, image_bird){
 	image(image_bird, data.x, data.y, data.width, data.height);
 }
-
-function setup() {
-    socket = io.connect('http://128.179.131.152:3000');
-    socket.on("canvas", function(data){
-        var canv = createCanvas(data.width, windowHeight-200);
-        background(255,255,255);
-    });
-    
-    socket.on("yourId", function(data){
-        myId = data;
-    });
-    socket.on('positionUpdate', update);
-    
-    socket.on('blocks', updateBlocks);
-}
-
-function update(data) {
-    playerLocations = data;
-}
-
-function updateBlocks(data) {
-    blocks = data;
-}
-
 
 function move(){
     xVelocity = 0;
@@ -49,16 +29,38 @@ function move(){
     else if(keyIsDown(65)){
         xVelocity = -3;
     }
-    
+
     var data = {
         velocityX: xVelocity,
         velocityY: yVelocity
     };
-    
+
     socket.emit('positionUpdate', data);
     yVelocity = 0;
 }
 
+function setup() {
+    socket = io.connect('http://' + SERVER_IP + ":" + SERVER_PORT);
+    socket.on("canvas", function(data){
+        var canv = createCanvas(data.width, windowHeight-200);
+        background(255,255,255);
+    });
+    
+    socket.on("yourId", function(data){
+        myId = data;
+    });
+    socket.on('positionUpdate', update);
+    socket.on('blocks', updateBlocks);
+    moving = setInterval(move, 10);
+}
+
+function update(data) {
+    playerLocations = data;
+}
+
+function updateBlocks(data) {
+    blocks = data;
+}
     
 // on press space bar, jump
 function keyTyped(){
@@ -67,8 +69,6 @@ function keyTyped(){
         jumpCount += 1;
     }
 }
-
-var moving = setInterval(move, 10);
 
 //p5js functions
 function preload(){
@@ -86,10 +86,7 @@ function draw(){
 	background(color(87, 217, 255));
     for (var key in playerLocations){
         if(key == myId){
-            var tile = our_bird_right;
-            if(playerLocations[key].xVelocity < 0){
-                tile = our_bird_left;
-            }
+            var tile = playerLocations[key].horizontalDirection === "R" ? our_bird_right : our_bird_left;
             if(!playerLocations[key].dead){
                 drawBird(playerLocations[key], tile);
             } else {
@@ -114,7 +111,6 @@ function draw(){
 	});
     
 	fill("#FFF");
-	text("score : " + score, 10, 10);
 }
 
 function disconnect(){
@@ -123,16 +119,19 @@ function disconnect(){
 
 function Block(x, y, n) {
 	return {
-		width: 10,
-		height: 10,
+		width: 20,
+		height: 20,
 		x: x,
 		y: y,
 		draw : function(){
-            image(left_block_title, this.x, this.y, this.width, this.height);
-            for( i in range(1,n-2)){
-                image(middle_block_tile, this.x+10*i, this.y, this.width, this.height);
+            var posX = this.x;
+            image(left_block_tile, posX, this.y, this.width, this.height);
+            posX+=this.width;
+            for(var i = 1; i<n-2;i++){
+                image(middle_block_tile, posX, this.y, this.width, this.height);
+                posX+=this.width;
             }
-            image(right_block_tile, this.x+10*n-1, this.y, this.width, this.height);
+            image(right_block_tile, posX, this.y, this.width, this.height);
 		}
 	}
 }
