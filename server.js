@@ -20,6 +20,9 @@ var birdWidth=40;
 var birdHeight=40;
 var canvasWidth=600;
 var canvasHeight=400;
+var blocks = [];
+
+const blockSize = 20;
 
 const MAX_JUMPS = 1;
 
@@ -72,6 +75,9 @@ io.sockets.on('connection', function (socket) {
         myBird.dead=myBird.x<=0;         
 
     };
+    blocks.push({x:0, y:canvasHeight, length: 20});
+    Array.prototype.push.apply(blocks, generateMap(-200, 400));
+    socket.emit('map', blocks);
 });
 
 function isDown(bird){
@@ -90,15 +96,15 @@ function ground(bird){
 
 setInterval(function(){io.sockets.emit('positionUpdate', playerLocations); }, 10);
 
-
-function Block(x, y) {
-	return {
-		width: 30,
-		height: 30,
-		x: x,
-		y: y,
-		draw : function(){
-			image(block_tile, this.x, this.y, this.width, this.height);
-		}
-	}
+function generateMap(xMin, xMax) {
+    newBlock = []
+    for(var x = xMin; x >= xMax; x += blockSize * 2) {
+        length = randomInt(3, 10);
+        upperRightBound = canvasWidth - length * blockSize;
+        newBlock.push({x:x, y: randomInt(0, upperRightBound), length: length});
+    }
+    return newBlocks;
+}
+function randomInt(min, max) {
+    return Math.floor(Math.random()*(max-min+1)+min);
 }
