@@ -1,3 +1,7 @@
+const SERVER_IP = "localhost";
+const SERVER_PORT = 3000;
+
+
 var socket;
 
 var playerLocations = {};
@@ -20,7 +24,7 @@ function drawBird(data, image_bird){
 function setup() {
     
 
-    socket = io.connect('http://128.179.131.152:3000');
+    socket = io.connect('http://' + SERVER_IP + ":" + SERVER_PORT);
     socket.on("canvas", function(data){
         var canv = createCanvas(data.width, data.height);
         background(255,255,255);
@@ -81,10 +85,7 @@ function draw(){
     for (var key in playerLocations){
         
         if(key == myId){
-            var tile = our_bird_right;
-            if(playerLocations[key].xVelocity < 0){
-                tile = our_bird_left;
-            }
+            var tile = playerLocations[key].horizontalDirection === "R" ? our_bird_right : our_bird_left;
             if(!playerLocations[key].dead){
                 drawBird(playerLocations[key], tile);
             } else {

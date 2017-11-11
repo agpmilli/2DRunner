@@ -36,14 +36,27 @@ io.sockets.on('connection', function (socket) {
         delete playerLocations[socket.id];
     });
     
-    playerLocations[socket.id]={x:100, y:300, dead:false, jumpCount:0, yVelocity: 0, xVelocity: 0, width:birdWidth, height:birdHeight};
+    playerLocations[socket.id] = {
+        x:100,
+        y:300,
+        dead:false,
+        jumpCount:0,
+        yVelocity: 0,
+        xVelocity: 0,
+        width:birdWidth,
+        height:birdHeight,
+        horizontalDirection: "R"
+    };
     
     socket.on('positionUpdate', positionUpdate);
     
     function positionUpdate(data) {
-        myBird = playerLocations[socket.id]
+        var myBird = playerLocations[socket.id]
         myBird.x = myBird.x + data.velocityX;
         myBird.xVelocity = data.velocityX;
+
+        var direction = data.velocityX > 0 ? "R" : "L";
+        myBird.horizontalDirection = data.velocityX === 0 ? myBird.horizontalDirection : direction;
         
         if(data.velocityY==-10 && myBird.jumpCount < MAX_JUMPS){
             myBird.yVelocity = data.velocityY;
