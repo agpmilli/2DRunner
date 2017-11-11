@@ -1,0 +1,5 @@
+server/.idea
+server/node_modules
+server/public/libraries/.DS_Store
+
+.DS_Store
