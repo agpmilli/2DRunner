@@ -10,7 +10,6 @@ var myId = -1;
 var jumpCount = 0;
 
 const sideMargin = 30;
-var score = 0;
 
 var xVelocity = 0;
 var yVelocity = 0;
@@ -110,7 +109,6 @@ function draw(){
 	});
     
 	fill("#FFF");
-	text("score : " + score, 10, 10);
 }
 
 function disconnect(){
