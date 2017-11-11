@@ -15,7 +15,7 @@ const sideMargin = 30;
 var xVelocity = 0;
 var yVelocity = 0;
 
-var blocks = [{x:50, y:250, size:15}];
+var blocks = [];
 
 function drawBird(data, image_bird){
 	image(image_bird, data.x, data.y, data.width, data.height);
@@ -42,7 +42,7 @@ function move(){
 function setup() {
     socket = io.connect('http://' + SERVER_IP + ":" + SERVER_PORT);
     socket.on("canvas", function(data){
-        var canv = createCanvas(data.width, windowHeight-200);
+        var canv = createCanvas(data.width, data.height);
         background(255,255,255);
     });
     
@@ -50,7 +50,7 @@ function setup() {
         myId = data;
     });
     socket.on('positionUpdate', update);
-    socket.on('blocks', updateBlocks);
+    socket.on('map', updateBlocks);
     moving = setInterval(move, 10);
 }
 
@@ -105,9 +105,8 @@ function draw(){
             }
         }
     }
-    
     blocks.forEach(function(block) {
-        Block(block.x, block.y, block.size).draw();
+        Block(block.x, block.y, block.length).draw();
 	});
     
 	fill("#FFF");

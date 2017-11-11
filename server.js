@@ -26,7 +26,8 @@ const blockSize = 20;
 
 const MAX_JUMPS = 1;
 
-var blocks = [{x:300, y:250, size:3}];
+var blocks = [{x:0, y:canvasHeight-blockSize, length: 150}];
+Array.prototype.push.apply(blocks, generateMap(-200, 400));
 
 io.sockets.on('connection', function (socket) {
     console.log('[*] info: new connection ' + socket.id);
@@ -75,8 +76,6 @@ io.sockets.on('connection', function (socket) {
         myBird.dead=myBird.y>=canvasHeight;         
 
     };
-    blocks.push({x:0, y:canvasHeight, length: 20});
-    Array.prototype.push.apply(blocks, generateMap(-200, 400));
     socket.emit('map', blocks);
 });
 
@@ -85,23 +84,27 @@ function isDown(bird){
 }
 
 function ground(bird){
+    var finalGround = canvasHeight;
     for(var i = 0; i < blocks.length; i++) {
         block = blocks[i];
-        if(bird.x + birdWidth / 2 >= block.x && bird.x <= (block.x + block.width) && (bird.y + birdHeight) <= block.y) {
-            return block.y - birdHeight;
+        if(bird.x + birdWidth >= block.x && bird.x + birdWidth / 2 <= (block.x + blockSize*block.length) && (bird.y + birdHeight) <= block.y) {
+            newGround = block.y - birdHeight;
+            if(newGround < finalGround) {
+                finalGround = newGround;
+            }
         }
     }
-    return canvasHeight;
+    return finalGround;
 }
 
 setInterval(function(){io.sockets.emit('positionUpdate', playerLocations); }, 10);
 
-function generateMap(xMin, xMax) {
+function generateMap(yMin, yMax) {
     newBlocks = []
-    for(var x = xMin; x >= xMax; x += blockSize * 2) {
+    for(var y = yMin; y <= yMax; y += blockSize * 2) {
         length = randomInt(3, 10);
         upperRightBound = canvasWidth - length * blockSize;
-        newBlocks.push({x:x, y: randomInt(0, upperRightBound), length: length});
+        newBlocks.push({x:randomInt(0, upperRightBound), y: y, length: length});
     }
     return newBlocks;
 }
