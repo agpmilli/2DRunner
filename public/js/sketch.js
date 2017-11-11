@@ -12,10 +12,18 @@ var jumpCount = 0;
 
 const sideMargin = 30;
 
+const Y_AXIS = 1;
+const X_AXIS = 2;
+
 var xVelocity = 0;
 var yVelocity = 0;
 
 var blocks = [];
+
+var gameWidth = 0;
+var gameHeight = 0;
+
+var totalShift = 0;
 
 function drawBird(data, image_bird){
 	image(image_bird, data.x, data.y, data.width, data.height);
@@ -42,7 +50,9 @@ function move(){
 function setup() {
     socket = io.connect('http://' + SERVER_IP + ":" + SERVER_PORT);
     socket.on("canvas", function(data){
-        var canv = createCanvas(data.width, data.height);
+        gameWidth = data.width;
+        gameHeight = data.height;
+        var canv = createCanvas(gameWidth, gameHeight);
         background(255,255,255);
     });
     
@@ -86,7 +96,16 @@ function preload(){
 
 function draw(){
 	clear();
-	background(color(10, 20, 30));
+    
+    var c1 = color(17, 192, 255);
+    var c2 = color(47, 48, 48);
+    var max = 10000;
+    
+    var newRed = Math.min(red(c2),max/totalShift*red(c2));
+    var newGreen = Math.min(green(c1), max/totalShift*green(c2));
+    var newBlue = Math.min(blue(c1), max/totalShift*blue(c2));
+    background(color(newRed, newGreen, newBlue));
+    
     for (var key in playerLocations){
         if(key == myId){
             var tile = playerLocations[key].horizontalDirection === "R" ? our_bird_right : our_bird_left;
@@ -107,13 +126,24 @@ function draw(){
                 drawBird(playerLocations[key], tile);
             }
         }
+        totalShift = playerLocations[key].totalShift;
     }
+    
     blocks.forEach(function(block) {
         Block(block.x, block.y, block.length, block.type).draw();
 	});
     
 	fill("#FFF");
 }
+
+function setBackground(x, y, c1, c2, width, height) {
+    for (var i = y; i <= y+height; i++) {
+      var inter = map(i, y, y+height, 0, 1);
+      c = lerpColor(c1, c2, inter);
+      stroke(c);
+      line(x, i, x+width, i);
+    }
+}  
 
 function disconnect(){
     clearInterval(moving);

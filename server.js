@@ -53,7 +53,8 @@ io.sockets.on('connection', function (socket) {
         xVelocity: 0,
         width:birdWidth,
         height:birdHeight,
-        horizontalDirection: "R"
+        horizontalDirection: "R",
+        totalShift: totalShift
     };
     
     socket.on('positionUpdate', positionUpdate);
@@ -73,7 +74,7 @@ io.sockets.on('connection', function (socket) {
         myBird.horizontalDirection = data.velocityX === 0 ? myBird.horizontalDirection : direction;
         
         // update jump counts
-        if(data.velocityY==-10 && myBird.jumpCount < MAX_JUMPS){
+        if(data.velocityY==-7 && myBird.jumpCount < MAX_JUMPS){
             myBird.yVelocity = data.velocityY;
             myBird.jumpCount++;
         }
@@ -86,6 +87,7 @@ io.sockets.on('connection', function (socket) {
         
         myBird.dead=myBird.y>=canvasHeight;         
 
+        myBird.totalShift = totalShift;
     };
     socket.emit('map', blocks);
 });
@@ -124,8 +126,8 @@ setInterval(function(){
 
 function generateMap(yMin, yMax) {
     newBlocks = []
-    var proportion = min(1, iter/20);
-    for(var y = yMin; y <= yMax; y += blockSize * 2) {
+    var proportion = Math.min(1, iter/6);
+    for(var y = yMin; y <= yMax; y += blockSize * Math.max(2, 4* proportion)) {
         length = randomInt(3, 10);
         upperRightBound = canvasWidth - length * blockSize;
         newBlocks.push({x:randomInt(0, upperRightBound), y: y, length: length, type: Math.random() < proportion ? "snow" : "grass"});
