@@ -10,7 +10,11 @@ var bird = {
 	height: 40,
 	xVelocity: 0,
 	draw : function(){
-		image(image_bird, this.x, this.y, this.width, this.height);
+		var tile = image_bird_right;
+		if(bird.xVelocity < 0) {
+			tile = image_bird_left;
+		} 
+		image(tile, this.x, this.y, this.width, this.height);
 	},
 	update : function(){
 		bird.x += bird.xVelocity;
@@ -24,9 +28,11 @@ var bird = {
 }
 
 //p5js functions
-var image_bird;
+var image_bird_left;
+var image_bird_right;
 function preload(){
-	image_bird = loadImage("images/bird.png")
+	image_bird_left = loadImage("images/bird_left.png")
+	image_bird_right = loadImage("images/bird_right.png")
 }
 function setup(){
 	createCanvas(canvasWidth, canvasHeight);
@@ -35,7 +41,7 @@ function draw(){
 	clear();
 	background(45);
 	if(keyIsDown(68) && !bird.isRightMost()){
-		bird.xVelocity = 5;
+		bird.xVelocity = 10;
 	}
 	else if(keyIsDown(65)){
 		bird.xVelocity = -5;
