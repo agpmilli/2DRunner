@@ -1,4 +1,4 @@
-const SERVER_IP = "localhost";
+const SERVER_IP = "128.179.131.152";
 const SERVER_PORT = 3000;
 
 
@@ -65,7 +65,7 @@ function updateBlocks(data) {
 // on press space bar, jump
 function keyTyped(){
     if(keyCode==32){
-        yVelocity = -10;
+        yVelocity = -7;
         jumpCount += 1;
     }
 }
@@ -91,7 +91,7 @@ function draw(){
                 drawBird(playerLocations[key], tile);
             } else {
                 textSize(40);
-                text("GAME OVER", 85, 400);
+                text("GAME OVER", 120, 300);
                 disconnect();
             }
         }

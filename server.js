@@ -19,7 +19,7 @@ var yAcceleration = 0.3;
 var birdWidth=40;
 var birdHeight=40;
 var canvasWidth=600;
-var canvasHeight=400;
+var canvasHeight=800;
 var topMargin = canvasHeight/5;
 var blocks = [];
 var totalShift=0;
@@ -45,7 +45,7 @@ io.sockets.on('connection', function (socket) {
     
     playerLocations[socket.id] = {
         x:100,
-        y:300,
+        y:canvasHeight-2*birdHeight,
         dead:false,
         jumpCount:0,
         yVelocity: 0,
@@ -61,6 +61,11 @@ io.sockets.on('connection', function (socket) {
     function positionUpdate(data) {
         var myBird = playerLocations[socket.id]
         myBird.x = myBird.x + data.velocityX;
+        if(myBird.x < 0){
+            myBird.x = canvasWidth-myBird.x;
+        } else if (myBird.x > canvasWidth){
+            myBird.x = myBird.x-canvasWidth;
+        }
         myBird.xVelocity = data.velocityX;
 
         var direction = data.velocityX > 0 ? "R" : "L";
@@ -118,7 +123,7 @@ setInterval(function(){
 
 function generateMap(yMin, yMax) {
     newBlocks = []
-    for(var y = yMin; y <= yMax; y += blockSize * 2) {
+    for(var y = yMin; y <= yMax; y += blockSize * 3.5) {
         length = randomInt(3, 10);
         upperRightBound = canvasWidth - length * blockSize;
         newBlocks.push({x:randomInt(0, upperRightBound), y: y, length: length});
