@@ -1,5 +1,5 @@
-server/.idea
-server/node_modules
-server/public/libraries/.DS_Store
+.idea
+node_modules
+public/libraries/.DS_Store
 
 .DS_Store

@@ -36,7 +36,7 @@ io.sockets.on('connection', function (socket) {
         delete playerLocations[socket.id];
     });
     
-    playerLocations[socket.id]={x:100, y:300, dead:false, jumpCount:0, yVelocity: 0, xVelocity: 0,width:birdWidth, height:birdHeight};
+    playerLocations[socket.id]={x:100, y:300, dead:false, jumpCount:0, yVelocity: 0, xVelocity: 0, width:birdWidth, height:birdHeight};
     
     socket.on('positionUpdate', positionUpdate);
     

@@ -77,7 +77,7 @@ function preload(){
 
 function draw(){
 	clear();
-	background(45);
+	background(color(87, 217, 255));
     for (var key in playerLocations){
         
         if(key == myId){
