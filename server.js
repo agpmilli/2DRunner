@@ -18,12 +18,12 @@ var playerLocations = {};
 var yAcceleration = 0.3;
 var birdWidth=40;
 var birdHeight=40;
-var canvasWidth=600;
-var canvasHeight=400;
+var canvasWidth=400;
+var canvasHeight=800;
 
 const MAX_JUMPS = 1;
 
-var blocks = [Block(300, 250), Block(329, 250), Block(358, 250)];
+var blocks = [{x:300, y:250, size:3}];
 
 io.sockets.on('connection', function (socket) {
     console.log('[*] info: new connection ' + socket.id);
@@ -56,7 +56,8 @@ io.sockets.on('connection', function (socket) {
         
         myBird.jumpCount = isDown(myBird) ? 0 : myBird.jumpCount;
         
-        myBird.dead=myBird.x<=0;         
+        console.log(myBird.y)
+        myBird.dead=myBird.y>=canvasHeight;         
 
     };
 });
@@ -72,20 +73,7 @@ function ground(bird){
             return block.y - birdHeight;
         }
     }
-    return canvasHeight-birdHeight;
+    return canvasHeight;
 }
 
 setInterval(function(){io.sockets.emit('positionUpdate', playerLocations); }, 10);
-
-
-function Block(x, y) {
-	return {
-		width: 30,
-		height: 30,
-		x: x,
-		y: y,
-		draw : function(){
-			image(block_tile, this.x, this.y, this.width, this.height);
-		}
-	}
-}

@@ -11,18 +11,16 @@ var score = 0;
 var xVelocity = 0;
 var yVelocity = 0;
 
-var blocks = [Block(300, 250), Block(329, 250), Block(358, 250)];
+var blocks = [{x:300, y:250, size:3}];
 
 function drawBird(data, image_bird){
 	image(image_bird, data.x, data.y, data.width, data.height);
 }
 
 function setup() {
-    
-
     socket = io.connect('http://128.179.131.152:3000');
     socket.on("canvas", function(data){
-        var canv = createCanvas(data.width, data.height);
+        var canv = createCanvas(data.width, windowHeight-200);
         background(255,255,255);
     });
     
@@ -30,10 +28,16 @@ function setup() {
         myId = data;
     });
     socket.on('positionUpdate', update);
+    
+    socket.on('blocks', updateBlocks);
 }
 
 function update(data) {
     playerLocations = data;
+}
+
+function updateBlocks(data) {
+    blocks = data;
 }
 
 
@@ -72,14 +76,15 @@ function preload(){
     our_bird_right = loadImage("images/our_bird_right.png")
     bird_left = loadImage("images/bird_left.png")
 	bird_right = loadImage("images/bird_right.png")
-    block_tile = loadImage("images/block.png")
+    left_block_tile = loadImage("images/left_block.png")
+    middle_block_tile = loadImage("images/middle_block.png")
+    right_block_tile = loadImage("images/right_block.png")
 }
 
 function draw(){
 	clear();
 	background(color(87, 217, 255));
     for (var key in playerLocations){
-        
         if(key == myId){
             var tile = our_bird_right;
             if(playerLocations[key].xVelocity < 0){
@@ -89,7 +94,7 @@ function draw(){
                 drawBird(playerLocations[key], tile);
             } else {
                 textSize(40);
-                text("GAME OVER", 180, 200);
+                text("GAME OVER", 85, 400);
                 disconnect();
             }
         }
@@ -105,7 +110,7 @@ function draw(){
     }
     
     blocks.forEach(function(block) {
-		block.draw();
+        Block(block.x, block.y, block.size).draw();
 	});
     
 	fill("#FFF");
@@ -116,14 +121,18 @@ function disconnect(){
     clearInterval(moving);
 }
 
-function Block(x, y) {
+function Block(x, y, n) {
 	return {
-		width: 30,
-		height: 30,
+		width: 10,
+		height: 10,
 		x: x,
 		y: y,
 		draw : function(){
-			image(block_tile, this.x, this.y, this.width, this.height);
+            image(left_block_title, this.x, this.y, this.width, this.height);
+            for( i in range(1,n-2)){
+                image(middle_block_tile, this.x+10*i, this.y, this.width, this.height);
+            }
+            image(right_block_tile, this.x+10*n-1, this.y, this.width, this.height);
 		}
 	}
 }
