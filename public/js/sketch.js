@@ -1,4 +1,4 @@
-const SERVER_IP = "128.179.147.23";
+const SERVER_IP = "localhost";
 const SERVER_PORT = 3000;
 
 
@@ -65,6 +65,7 @@ function setup() {
     });
     socket.on('positionUpdate', update);
     socket.on('map', updateBlocks);
+    socket.on('restart', restartGame);
     moving = setInterval(move, 10);
 }
 
@@ -81,6 +82,10 @@ function keyTyped(){
     if(keyCode==32){
         yVelocity = -7;
         jumpCount += 1;
+    }
+    if(keyCode == 114){
+        console.log("restart");
+        socket.emit('restart', myId);
     }
 }
 
@@ -151,6 +156,11 @@ function setBackground(x, y, c1, c2, width, height) {
 
 function disconnect(){
     clearInterval(moving);
+}
+
+function restartGame(){
+    clearInterval(moving);
+    moving = setInterval(move, 10);
 }
 
 function Block(x, y, n, type) {

@@ -62,6 +62,7 @@ io.sockets.on('connection', function (socket) {
     });
     
     socket.on('positionUpdate', positionUpdate);
+    socket.on('restart', restartGame);
     
     // called when a player updates its position
     function positionUpdate(data) {
@@ -152,7 +153,7 @@ function shiftMap() {
         playerLocations[higherPlayer].y = topMargin;
         // move down each other player
         Object.keys(playerLocations).filter(id => id != higherPlayer).forEach(function(id){
-            playerLocations[id].yVelocity -= playerLocations[higherPlayer].yVelocity;
+            playerLocations[id].y -= playerLocations[higherPlayer].yVelocity;
         });
         // move all blocks down
         blocks.map(block => block.y -= playerLocations[higherPlayer].yVelocity);
@@ -175,4 +176,26 @@ function getHigherPlayerId() {
 //TOOD: when a player is above, update substract its velocity from all other players velocities
 function randomInt(min, max) {
     return Math.floor(Math.random()*(max-min+1)+min);
+}
+
+function restartGame(id){
+    let alive = 0;
+    Object.values(playerLocations).forEach(function(player){
+        if(!player.dead){
+            alive += 1;
+        }
+    });
+    // restart
+    if(alive < 2){
+        totalShift = 0;
+        blocks = [{x:0, y:canvasHeight-blockSize, length: 31}];
+        Array.prototype.push.apply(blocks, generateMap(-canvasHeight, canvasHeight));
+        Object.keys(playerLocations).forEach(function(key){
+            playerLocations[key].x = randomInt(0, canvasWidth - birdWidth);
+            playerLocations[key].y = canvasHeight - birdHeight - 50;
+            playerLocations[key].dead = false;
+            console.log(Object.keys(playerLocations).length + " players online");
+        });
+        io.sockets.emit("restart", 1);
+    }
 }
