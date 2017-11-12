@@ -1,4 +1,5 @@
-const SERVER_IP = "localhost";
+//const SERVER_IP = "localhost";
+const SERVER_IP = "128.179.196.28";
 const SERVER_PORT = 3000;
 
 
@@ -22,6 +23,8 @@ var blocks = [];
 
 var gameWidth = 0;
 var gameHeight = 0;
+
+var rankingText = "";
 
 var totalShift = 0;
 var username = prompt("Username:");
@@ -69,7 +72,19 @@ function setup() {
     socket.on('positionUpdate', update);
     socket.on('map', updateBlocks);
     socket.on('restart', restartGame);
+    socket.on('rank', rank);
     moving = setInterval(move, 10);
+}
+
+function rank(data) {
+    console.log(data);
+    var ranking = "RANKING:\n";
+    var j = 1;
+    for (var i = data.length - 1; i >= 0; i--) {
+        ranking += j + " - " + data[i] + "\n";
+        j++;
+    }
+    rankingText = ranking;
 }
 
 function update(data) {
@@ -117,6 +132,10 @@ function draw(){
     var newGreen = Math.min(green(c1), max/totalShift*green(c2));
     var newBlue = Math.min(blue(c1), max/totalShift*blue(c2));
     background(color(newRed, newGreen, newBlue));
+
+    if(rankingText!=""){
+        text(rankingText,120,400);
+    }
     
     for (var key in playerLocations){
         if(key == myId){

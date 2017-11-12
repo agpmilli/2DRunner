@@ -15,6 +15,7 @@ app.get('/', function (req, res) {
 console.log(' * Running on http://' + config.server + ':' + config.port.toString());
 
 var playerLocations = {};
+var rank = [];
 var yAcceleration = 0.3;
 var birdWidth=40;
 var birdHeight=40;
@@ -24,6 +25,8 @@ var topMargin = canvasHeight/5;
 var blocks = [];
 var totalShift=0;
 var iter = 1;
+
+var scoreBoard = false;
 
 const blockSize = 20;
 
@@ -45,7 +48,7 @@ io.sockets.on('connection', function (socket) {
     });
     
     playerLocations[socket.id] = {
-        username:"undefined",
+        username: "",
         x:100,
         y:canvasHeight-2*birdHeight,
         dead:false,
@@ -90,7 +93,11 @@ io.sockets.on('connection', function (socket) {
         
         myBird.jumpCount = isDown(myBird) ? 0 : myBird.jumpCount;
         
-        myBird.dead=myBird.y>=canvasHeight;         
+        myBird.dead=myBird.y>=canvasHeight;
+
+        if (myBird.dead) {
+            rank.push(myBird.username);
+        }
 
         myBird.totalShift = totalShift;
     };
@@ -115,6 +122,27 @@ function ground(bird){
     return finalGround;
 }
 
+function countAlive() {
+    var alive = 0;
+    var player = null;
+    for (var k in playerLocations) {
+        if (!playerLocations[k].dead) {
+            alive += 1;
+            player = playerLocations[k];
+        }
+    }
+    return [alive, player];
+}
+
+function existsDeadPlayers() {
+    for (var k in playerLocations) {
+        if (playerLocations[k].dead) {
+            return true;
+        }
+    }
+    return false;
+}
+
 setInterval(function(){
     // shift map
     shiftMap();
@@ -126,6 +154,14 @@ setInterval(function(){
     // send positions to players
     io.sockets.emit('positionUpdate', playerLocations);
     io.sockets.emit('map', blocks);
+    var res = countAlive();
+    if (res[0] == 1 && existsDeadPlayers() && !scoreBoard) {
+        rank.push(res[1].username);
+        io.sockets.emit('rank', rank);
+        scoreBoard = true;
+    }
+
+
 
 }, 10);
 
@@ -179,12 +215,8 @@ function randomInt(min, max) {
 }
 
 function restartGame(id){
-    let alive = 0;
-    Object.values(playerLocations).forEach(function(player){
-        if(!player.dead){
-            alive += 1;
-        }
-    });
+    var res = countAlive();
+    var alive = res[0];
     // restart
     if(alive < 2){
         totalShift = 0;
@@ -197,6 +229,8 @@ function restartGame(id){
             playerLocations[key].dead = false;
             console.log(Object.keys(playerLocations).length + " players online");
         });
+        rank = [];
+        scoreBoard = false;
         io.sockets.emit("restart", 1);
     }
 }
