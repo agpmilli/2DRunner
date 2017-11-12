@@ -25,6 +25,7 @@ var gameWidth = 0;
 var gameHeight = 0;
 
 var rankingText = "";
+var timeoutMsg = "";
 
 var totalShift = 0;
 var username = prompt("Username:");
@@ -73,7 +74,12 @@ function setup() {
     socket.on('map', updateBlocks);
     socket.on('rank', rank);
     socket.on('restart', onRestart);
+    socket.on('timeout', onTimeout);
     moving = setInterval(move, 10);
+}
+
+function onTimeout(data) {
+    timeoutMsg = data;
 }
 
 function rank(data) {
@@ -102,7 +108,7 @@ function keyTyped(){
         jumpCount += 1;
     }
     if(keyCode == 114){
-        socket.emit('restart', myId);
+        //socket.emit('restart', myId);
     }
 }
 
@@ -160,6 +166,7 @@ function draw(){
 
     if(rankingText!=""){
         text(rankingText,(gameWidth/2)-20, gameHeight/2 + 100);
+        text(timeoutMsg,(gameWidth/2)-20, gameHeight/2 + 50);
     }
 
     fill("#FFF");
@@ -167,6 +174,7 @@ function draw(){
 
 function onRestart() {
     rankingText = "";
+    timeoutMsg ="";
 }
 
 function Block(x, y, n, type) {

@@ -5,6 +5,8 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+const TIME_BETWEEN_NEW_GAMES = 4;
+
 server.listen(config.port);
 
 app.use(express.static(__dirname + '/public'));
@@ -159,6 +161,13 @@ setInterval(function(){
     if (res[0] == 1 && existsDeadPlayers() && !scoreBoard) {
         rank.push(res[1].username);
         io.sockets.emit('rank', rank);
+        /*for (var i = 0 ; i < TIME_BETWEEN_NEW_GAMES; i++) {
+            var msg = i == 0 ? "READY" : i;
+            setTimeout(function() {
+                io.sockets.emit("timeout", msg);
+            }, i*1000)
+        }*/
+        setTimeout(restartGame, TIME_BETWEEN_NEW_GAMES * 1000);
         scoreBoard = true;
     }
 
