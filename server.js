@@ -191,6 +191,9 @@ function shiftMap() {
         Object.keys(playerLocations).filter(id => id != higherPlayer).forEach(function(id){
             playerLocations[id].y -= playerLocations[higherPlayer].yVelocity;
             playerLocations[id].dead = playerLocations[id].y>=canvasHeight;
+            if (playerLocations[id].dead) {
+                rank.push(playerLocations[id].username);
+            }
         });
         // move all blocks down
         blocks.map(block => block.y -= playerLocations[higherPlayer].yVelocity);
