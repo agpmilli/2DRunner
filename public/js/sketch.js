@@ -24,7 +24,10 @@ var gameWidth = 0;
 var gameHeight = 0;
 
 var totalShift = 0;
-var username = prompt("Username:")
+var username = prompt("Username:");
+if (username == null || username === "") {
+    username = "anonymous";
+}
 
 function drawBird(data, image_bird){
     text(data.username, data.x, data.y - 40 / 3, 50, 200)
