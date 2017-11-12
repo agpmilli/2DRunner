@@ -67,31 +67,32 @@ io.sockets.on('connection', function (socket) {
     // called when a player updates its position
     function positionUpdate(data) {
         var myBird = playerLocations[socket.id]
-        myBird.x = myBird.x + data.velocityX;
-        if(myBird.x < 0){
-            myBird.x = canvasWidth-myBird.x;
-        } else if (myBird.x > canvasWidth){
-            myBird.x = myBird.x-canvasWidth;
-        }
-        myBird.xVelocity = data.velocityX;
+        if(!myBird.dead){ 
+            myBird.x = myBird.x + data.velocityX;
+            if(myBird.x < 0){
+                myBird.x = canvasWidth-myBird.x;
+            } else if (myBird.x > canvasWidth){
+                myBird.x = myBird.x-canvasWidth;
+            }
+            myBird.xVelocity = data.velocityX;
 
-        var direction = data.velocityX > 0 ? "R" : "L";
-        myBird.horizontalDirection = data.velocityX === 0 ? myBird.horizontalDirection : direction;
-        
-        // update jump counts
-        if(data.velocityY==-7 && myBird.jumpCount < MAX_JUMPS){
-            myBird.yVelocity = data.velocityY;
-            myBird.jumpCount++;
+            var direction = data.velocityX > 0 ? "R" : "L";
+            myBird.horizontalDirection = data.velocityX === 0 ? myBird.horizontalDirection : direction;
+            
+            // update jump counts
+            if(data.velocityY==-7 && myBird.jumpCount < MAX_JUMPS){
+                myBird.yVelocity = data.velocityY;
+                myBird.jumpCount++;
+            }
+            
+            // update y position
+            myBird.yVelocity = myBird.yVelocity + yAcceleration;
+            myBird.y = Math.min(ground(myBird), myBird.y + myBird.yVelocity);
+            
+            myBird.jumpCount = isDown(myBird) ? 0 : myBird.jumpCount;
+            
+            myBird.dead=myBird.y>=canvasHeight;         
         }
-        
-        // update y position
-        myBird.yVelocity = myBird.yVelocity + yAcceleration;
-		myBird.y = Math.min(ground(myBird), myBird.y + myBird.yVelocity);
-        
-        myBird.jumpCount = isDown(myBird) ? 0 : myBird.jumpCount;
-        
-        myBird.dead=myBird.y>=canvasHeight;         
-
         myBird.totalShift = totalShift;
     };
     socket.emit('map', blocks);
@@ -126,7 +127,6 @@ setInterval(function(){
     // send positions to players
     io.sockets.emit('positionUpdate', playerLocations);
     io.sockets.emit('map', blocks);
-
 }, 10);
 
 function generateMap(yMin, yMax) {
@@ -154,6 +154,7 @@ function shiftMap() {
         // move down each other player
         Object.keys(playerLocations).filter(id => id != higherPlayer).forEach(function(id){
             playerLocations[id].y -= playerLocations[higherPlayer].yVelocity;
+            playerLocations[id].dead = playerLocations[id].y>=canvasHeight;
         });
         // move all blocks down
         blocks.map(block => block.y -= playerLocations[higherPlayer].yVelocity);
@@ -194,9 +195,11 @@ function restartGame(id){
         Object.keys(playerLocations).forEach(function(key){
             playerLocations[key].x = randomInt(0, canvasWidth - birdWidth);
             playerLocations[key].y = canvasHeight - birdHeight - 50;
+            playerLocations[key].yVelocity = yAcceleration;
             playerLocations[key].dead = false;
-            console.log(Object.keys(playerLocations).length + " players online");
         });
-        io.sockets.emit("restart", 1);
+        
+        console.log(Object.keys(playerLocations).length + " players online");
+
     }
 }

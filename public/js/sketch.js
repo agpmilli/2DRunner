@@ -1,4 +1,4 @@
-const SERVER_IP = "localhost";
+const SERVER_IP = "128.179.131.152";
 const SERVER_PORT = 3000;
 
 
@@ -24,7 +24,7 @@ var gameWidth = 0;
 var gameHeight = 0;
 
 var totalShift = 0;
-var username = prompt("Username:")
+var username = prompt("Username:");
 
 function drawBird(data, image_bird){
     text(data.username, data.x, data.y - 40 / 3, 50, 200)
@@ -65,7 +65,6 @@ function setup() {
     });
     socket.on('positionUpdate', update);
     socket.on('map', updateBlocks);
-    socket.on('restart', restartGame);
     moving = setInterval(move, 10);
 }
 
@@ -84,7 +83,6 @@ function keyTyped(){
         jumpCount += 1;
     }
     if(keyCode == 114){
-        console.log("restart");
         socket.emit('restart', myId);
     }
 }
@@ -121,9 +119,7 @@ function draw(){
             if(!playerLocations[key].dead){
                 drawBird(playerLocations[key], tile);
             } else {
-                textSize(40);
-                text("GAME OVER", 120, 300);
-                disconnect();
+                text("GAME OVER", (gameWidth/2)-20, gameHeight/2);
             }
         }
         else {
@@ -152,15 +148,6 @@ function setBackground(x, y, c1, c2, width, height) {
       stroke(c);
       line(x, i, x+width, i);
     }
-}  
-
-function disconnect(){
-    clearInterval(moving);
-}
-
-function restartGame(){
-    clearInterval(moving);
-    moving = setInterval(move, 10);
 }
 
 function Block(x, y, n, type) {
