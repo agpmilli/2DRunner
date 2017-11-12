@@ -71,8 +71,8 @@ function setup() {
     });
     socket.on('positionUpdate', update);
     socket.on('map', updateBlocks);
-    socket.on('restart', restartGame);
     socket.on('rank', rank);
+    socket.on('restart', onRestart);
     moving = setInterval(move, 10);
 }
 
@@ -102,7 +102,6 @@ function keyTyped(){
         jumpCount += 1;
     }
     if(keyCode == 114){
-        console.log("restart");
         socket.emit('restart', myId);
     }
 }
@@ -133,19 +132,14 @@ function draw(){
     var newBlue = Math.min(blue(c1), max/totalShift*blue(c2));
     background(color(newRed, newGreen, newBlue));
 
-    if(rankingText!=""){
-        text(rankingText,120,400);
-    }
-    
+
     for (var key in playerLocations){
         if(key == myId){
             var tile = playerLocations[key].horizontalDirection === "R" ? our_bird_right : our_bird_left;
             if(!playerLocations[key].dead){
                 drawBird(playerLocations[key], tile);
             } else {
-                textSize(40);
-                text("GAME OVER", 120, 300);
-                disconnect();
+                text("GAME OVER", (gameWidth/2)-20, gameHeight/2);
             }
         }
         else {
@@ -163,26 +157,16 @@ function draw(){
     blocks.forEach(function(block) {
         Block(block.x, block.y, block.length, block.type).draw();
 	});
-    
-	fill("#FFF");
-}
 
-function setBackground(x, y, c1, c2, width, height) {
-    for (var i = y; i <= y+height; i++) {
-      var inter = map(i, y, y+height, 0, 1);
-      c = lerpColor(c1, c2, inter);
-      stroke(c);
-      line(x, i, x+width, i);
+    if(rankingText!=""){
+        text(rankingText,(gameWidth/2)-20, gameHeight/2 + 100);
     }
-}  
 
-function disconnect(){
-    clearInterval(moving);
+    fill("#FFF");
 }
 
-function restartGame(){
-    clearInterval(moving);
-    moving = setInterval(move, 10);
+function onRestart() {
+    rankingText = "";
 }
 
 function Block(x, y, n, type) {
